@@ -16,6 +16,8 @@
     this._loadOption(options, 'cohorts');
     this._loadOption(options, 'runImmediately', true);
     this._loadOption(options, 'defaultWeight', 1);
+    this._loadOption(options, 'gaDomain', window.location.hostname);
+    this._loadOption(options, 'gaExperimentId', null);
 
     if (this.runImmediately) {
       this.run();
@@ -39,6 +41,11 @@
   MultivariateTest.prototype.run = function() {
     var cohort = this.getCohort();
     if (cohort) {
+      if (this.gaExperimentId) {
+        this.setGoogleExperiment();
+        var cohortObj = this.cohorts[cohort];
+        if (cohortObj.variationId) { this.setGoogleExperimentVariation(cohortObj.variationId) }
+      }
       this.setCustomVar(cohort);
       this.executeCohort(cohort);
     }
@@ -113,6 +120,48 @@
 
   MultivariateTest.prototype.cookieName = function() {
     return "multivariatetest_cohort_" + this.name;
+  };
+
+  MultivariateTest.prototype.generateHash = function(domainName) {
+    var hash = 1;
+
+    if(domainName !== null && domainName !== '') {
+      hash = 0;
+
+      for (var pos = domainName.length - 1; pos >= 0; pos--) {
+        var current = domainName[pos].charCodeAt(0);
+        hash = ((hash << 6) & 0xfffffff) + current + (current << 14);
+        var leftMost7 = hash & 0xfe00000;
+        if (leftMost7 != 0) {
+          hash ^= leftMost7 >> 21;
+        }
+      }
+    }
+    return hash;
+  };
+
+  MultivariateTest.prototype.setGoogleExperiment = function() {
+    GOVUK.cookie("__utmx", this.buildUtmxString(this.gaDomain), {minutes: 60});
+  }
+
+
+  MultivariateTest.prototype.setGoogleExperimentVariation = function(gaExperimentId) {
+    GOVUK.cookie("__utmxx", this.buildUtmxString(window.location.hostname, gaExperimentId), {minutes: 60});
+  }
+
+  MultivariateTest.prototype.buildUtmxString = function(domain) {
+    // Example format of the "__utmx" cookie value:
+    // 159991919.ft-5xaLPSturFXCPgoFrKg$0:1.ft-6uzLPSelrFQsPgouIkD$0:2
+    // [DOMAIN_HASH].[EXPERIMENT_ID]$0:[VARIATION].[EXPERIMENT_ID]$0:[VARIATION]
+    return (this.generateHash(domain) + "." + this.gaExperimentId + '$0:' + this.gaVariationId);
+  };
+
+  MultivariateTest.prototype.buildUtmxxString = function(domain, gaExperimentId) {
+    // Example format of the "__utmxx" cookie value:
+    // 159991919.ft-5xaLPSturFXCPgoFrKg$0:1380888455:8035200.ft-6uzLPSelrFQsPgouIkD$0:1380888456:8035200
+    // [DOMAIN_HASH].[EXPERIMENT_ID]$0:[TIMESTAMP]:8035200.[EXPERIMENT_ID]$0:[TIMESTAMP]:8035200
+    var timestamp = Math.floor(new Date().getTime() / 1000);
+    return (this.generateHash(domain) + "." + gaExperimentId + '$0:' + timestamp + ":8035200");
   };
 
   window.GOVUK.MultivariateTest = MultivariateTest;
