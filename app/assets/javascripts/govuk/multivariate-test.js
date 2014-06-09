@@ -140,28 +140,27 @@
     return hash;
   };
 
+  MultivariateTest.prototype.setGoogleExperimentVariation = function(variationId) {
+    GOVUK.cookie("__utmx", this.buildUtmxString(this.gaDomain, variationId), {minutes: 60});
+  }
+
   MultivariateTest.prototype.setGoogleExperiment = function() {
-    GOVUK.cookie("__utmx", this.buildUtmxString(this.gaDomain), {minutes: 60});
+    GOVUK.cookie("__utmxx", this.buildUtmxxString(this.gaDomain), {minutes: 60});
   }
 
-
-  MultivariateTest.prototype.setGoogleExperimentVariation = function(gaExperimentId) {
-    GOVUK.cookie("__utmxx", this.buildUtmxString(window.location.hostname, gaExperimentId), {minutes: 60});
-  }
-
-  MultivariateTest.prototype.buildUtmxString = function(domain) {
+  MultivariateTest.prototype.buildUtmxString = function(domain, variationId) {
     // Example format of the "__utmx" cookie value:
     // 159991919.ft-5xaLPSturFXCPgoFrKg$0:1.ft-6uzLPSelrFQsPgouIkD$0:2
     // [DOMAIN_HASH].[EXPERIMENT_ID]$0:[VARIATION].[EXPERIMENT_ID]$0:[VARIATION]
-    return (this.generateHash(domain) + "." + this.gaExperimentId + '$0:' + this.gaVariationId);
+    return (this.generateHash(domain) + "." + this.gaExperimentId + '$0:' + variationId);
   };
 
-  MultivariateTest.prototype.buildUtmxxString = function(domain, gaExperimentId) {
+  MultivariateTest.prototype.buildUtmxxString = function(domain) {
     // Example format of the "__utmxx" cookie value:
     // 159991919.ft-5xaLPSturFXCPgoFrKg$0:1380888455:8035200.ft-6uzLPSelrFQsPgouIkD$0:1380888456:8035200
     // [DOMAIN_HASH].[EXPERIMENT_ID]$0:[TIMESTAMP]:8035200.[EXPERIMENT_ID]$0:[TIMESTAMP]:8035200
     var timestamp = Math.floor(new Date().getTime() / 1000);
-    return (this.generateHash(domain) + "." + gaExperimentId + '$0:' + timestamp + ":8035200");
+    return (this.generateHash(domain) + "." + this.gaExperimentId + '$0:' + timestamp + ":8035200");
   };
 
   window.GOVUK.MultivariateTest = MultivariateTest;
