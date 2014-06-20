@@ -141,11 +141,15 @@
   };
 
   MultivariateTest.prototype.setGoogleExperimentVariation = function(variationId) {
-    GOVUK.cookie("__utmx", this.buildUtmxString(this.gaDomain, variationId), {minutes: 60});
+    if (!GOVUK.cookie("__utmx")) {
+      GOVUK.cookie("__utmx", this.buildUtmxString(this.gaDomain, variationId), {minutes: 60});
+    }
   }
 
   MultivariateTest.prototype.setGoogleExperiment = function() {
-    GOVUK.cookie("__utmxx", this.buildUtmxxString(this.gaDomain), {minutes: 60});
+    if (!GOVUK.cookie("__utmxx")) {
+      GOVUK.cookie("__utmxx", this.buildUtmxxString(this.gaDomain), {minutes: 60});
+    }
   }
 
   MultivariateTest.prototype.buildUtmxString = function(domain, variationId) {
