@@ -44,7 +44,10 @@
       if (this.gaExperimentId) {
         this.setGoogleExperiment();
         var cohortObj = this.cohorts[cohort];
-        if (cohortObj.variationId) { this.setGoogleExperimentVariation(cohortObj.variationId) }
+        if (cohortObj.variationId) {
+          this.setGoogleExperimentVariation(cohortObj.variationId)
+          window.gaData = {expId: this.gaExperimentId, expVar: cohortObj.variationId}
+        }
       }
       this.setCustomVar(cohort);
       this.executeCohort(cohort);
