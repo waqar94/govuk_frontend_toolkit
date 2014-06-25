@@ -142,13 +142,13 @@
 
   MultivariateTest.prototype.setGoogleExperimentVariation = function(variationId) {
     if (!GOVUK.cookie("__utmx")) {
-      GOVUK.cookie("__utmx", this.buildUtmxString(this.gaDomain, variationId), {minutes: 60});
+      GOVUK.cookie("__utmx", this.buildUtmxString(this.gaDomain, variationId), {days: 30});
     }
   }
 
   MultivariateTest.prototype.setGoogleExperiment = function() {
     if (!GOVUK.cookie("__utmxx")) {
-      GOVUK.cookie("__utmxx", this.buildUtmxxString(this.gaDomain), {minutes: 60});
+      GOVUK.cookie("__utmxx", this.buildUtmxxString(this.gaDomain), {days: 30});
     }
   }
 
