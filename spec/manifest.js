@@ -6,12 +6,14 @@ var manifest = {
     '../../javascripts/govuk/primary-links.js',
     '../../javascripts/govuk/stick-at-top-when-scrolling.js',
     '../../javascripts/govuk/stop-scrolling-at-footer.js',
-    '../../javascripts/govuk/selection-buttons.js'
+    '../../javascripts/govuk/selection-buttons.js',
+    '../../javascripts/govuk/optional-sections.js'
   ],
   test : [
     '../unit/MultivariateTestSpec.js',
     '../unit/PrimaryLinksSpec.js',
     '../unit/StickAtTopWhenScrollingSpec.js',
-    '../unit/SelectionButtonSpec.js'
+    '../unit/SelectionButtonSpec.js',
+    '../unit/OptionalSectionsSpec.js'
   ]
 };
