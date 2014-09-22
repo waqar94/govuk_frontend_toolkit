@@ -48,7 +48,7 @@ describe("selection-buttons", function () {
     it("Should create a new instance with the correct interface when sent jQuery-wrapped input elements", function () {
       var buttons = new GOVUK.RadioButtons($radioButtons);
 
-      expect(buttons.getInitialState).toBeDefined();
+      expect(buttons.setInitialState).toBeDefined();
       expect(buttons.bindEvents).toBeDefined();
       expect(buttons.markSelected).toBeDefined();
       expect(buttons.markFocused).toBeDefined();
@@ -70,13 +70,12 @@ describe("selection-buttons", function () {
       it("Should mark the label of any checked radios as selected", function () {
         var radioButtonsMock = {
               'markSelected' : GOVUK.RadioButtons.prototype.markSelected,
-              '$elms' : $radioButtons,
               'selectedClass' : 'selected'
             };
 
         $radioButtons.eq(0).attr('checked', true);
         spyOn(radioButtonsMock, 'markSelected').andCallThrough();
-        GOVUK.RadioButtons.prototype.setInitialState.call(radioButtonsMock);
+        GOVUK.RadioButtons.prototype.setInitialState.call(radioButtonsMock, $radioButtons);
         expect(radioButtonsMock.markSelected).toHaveBeenCalled();
         expect($radioButtons.eq(0).parent('label').hasClass('selected')).toBe(true);
       });
@@ -95,7 +94,6 @@ describe("selection-buttons", function () {
     describe("bindEvents method", function () {
       it("Should bind click and change events to each radio element sent into the constructor", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'markSelected' : function () {},
@@ -107,17 +105,16 @@ describe("selection-buttons", function () {
           if (evt === 'click change') {
             eventsBound = true;
           }
-          return $.fn;
+          return this;
         });
         expect($.fn.on.calls.length).toEqual(0);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
         expect($.fn.on).toHaveBeenCalled();
         expect(eventsBound).toEqual(true);
       });
 
-      it("Should bind click and change events to the document if an element selector is present", function () {
+      it("Should bind click and change events to the document if an element selector is sent into the constructor", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'markSelected' : function () {},
@@ -130,17 +127,16 @@ describe("selection-buttons", function () {
           if ((evt === 'click change') && (selector === radioButtonsMock.selector)) {
             eventsBound = true;
           }
-          return $.fn;
+          return this;
         });
         expect($.fn.on.calls.length).toEqual(0);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
         expect($.fn.on).toHaveBeenCalled();
         expect(eventsBound).toEqual(true);
       });
 
       it("Should bind focus and blur events to each radio element sent into the constructor", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'markSelected' : function () {},
@@ -152,17 +148,16 @@ describe("selection-buttons", function () {
           if (evt === 'focus blur') {
             eventsBound = true;
           }
-          return $.fn;
+          return this;
         });
         expect($.fn.on.calls.length).toEqual(0);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
         expect($.fn.on).toHaveBeenCalled();
         expect(eventsBound).toEqual(true);
       });
 
-      it("Should bind focus and blur events to the document if an element selector is present", function () {
+      it("Should bind focus and blur events to the document if an element selector was sent into the constructor", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'markSelected' : function () {},
@@ -175,17 +170,16 @@ describe("selection-buttons", function () {
           if ((evt === 'focus blur') && (selector === radioButtonsMock.selector)) {
             eventsBound = true;
           }
-          return $.fn;
+          return this;
         });
         expect($.fn.on.calls.length).toEqual(0);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
         expect($.fn.on).toHaveBeenCalled();
         expect(eventsBound).toEqual(true);
       });
 
       it("Should mark a radio element as selected if it's the target of a click or change event on itself", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'markSelected' : function () {},
@@ -197,18 +191,17 @@ describe("selection-buttons", function () {
           if (evt === 'click change') {
             callback = func;
           }
-          return $.fn;
+          return this;
         });
         spyOn(radioButtonsMock, 'markSelected');
-        radioButtonsMock.$elms.eq(0).attr('checked', true);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
-        callback({ 'target' : radioButtonsMock.$elms[0] });
+        $radioButtons.eq(0).attr('checked', true);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
+        callback({ 'target' : $radioButtons[0] });
         expect(radioButtonsMock.markSelected).toHaveBeenCalled();
       });
 
       it("Should mark a radio element as selected if it's the target of a click or change event on the document with a selector that matches it", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'selector' : 'label.selectable input',
@@ -219,22 +212,20 @@ describe("selection-buttons", function () {
             eventsBound = false;
 
         spyOn($.fn, 'on').andCallFake(function (evt, selector, func) {
-          if ((this === document) && (evt === 'click change') && (selector === radioButtonsMock)) {
+          if ((this[0] === document) && (evt === 'click change') && (selector === radioButtonsMock.selector)) {
             callback = func;
           }
-          return $.fn;
+          return this;
         });
-        spyOn(radioButtonsMock, 'getSelected');
         spyOn(radioButtonsMock, 'markSelected');
-        radioButtonsMock.$elms.eq(0).attr('checked', true);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
-        callback({ 'target' : radioButtonsMock.$elms[0] });
+        $radioButtons.eq(0).attr('checked', true);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
+        callback({ 'target' : $radioButtons[0] });
         expect(radioButtonsMock.markSelected).toHaveBeenCalled();
       });
 
       it("Should mark a radio element as focused or blurred if it's the target of a focus or blur event on itself", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'markSelected' : function () {},
@@ -246,18 +237,17 @@ describe("selection-buttons", function () {
           if (evt === 'focus blur') {
             callback = func;
           }
-          return $.fn;
+          return this;
         });
         spyOn(radioButtonsMock, 'markFocused');
-        radioButtonsMock.$elms.eq(0).attr('checked', true);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
-        callback({ 'target' : radioButtonsMock.$elms[0] }, 'focused');
+        $radioButtons.eq(0).attr('checked', true);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
+        callback({ 'target' : $radioButtons[0] }, 'focused');
         expect(radioButtonsMock.markFocused).toHaveBeenCalled();
       });
 
       it("Should mark a radio element as focused or blurred if it's the target of a focus or blur event on the document with a selector that matches it", function () {
         var radioButtonsMock = {
-              '$elms' : $radioButtons,
               'selectionEvents' : 'click change',
               'focusEvents' : 'focus blur',
               'markSelected' : function () {},
@@ -267,15 +257,15 @@ describe("selection-buttons", function () {
             eventsBound = false;
 
         spyOn($.fn, 'on').andCallFake(function (evt, selector, func) {
-          if ((this === document) && (evt === 'focus blur') && (selector === radioButtonsMock.selector)) {
+          if ((this[0] === document) && (evt === 'focus blur') && (selector === radioButtonsMock.selector)) {
             callback = func;
           }
-          return $.fn;
+          return this;
         });
         spyOn(radioButtonsMock, 'markFocused');
-        radioButtonsMock.$elms.eq(0).attr('checked', true);
-        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock);
-        callback({ 'target' : radioButtonsMock.$elms[0] }, 'focused');
+        $radioButtons.eq(0).attr('checked', true);
+        GOVUK.RadioButtons.prototype.bindEvents.call(radioButtonsMock, $radioButtons);
+        callback({ 'target' : $radioButtons[0] }, 'focused');
         expect(radioButtonsMock.markFocused).toHaveBeenCalled();
       });
     });
@@ -334,7 +324,7 @@ describe("selection-buttons", function () {
     it("Should create a new instance with the correct interface", function () {
       var buttons = new GOVUK.CheckboxButtons($checkboxButtons);
 
-      expect(buttons.getInitialState).toBeDefined();
+      expect(buttons.setInitialState).toBeDefined();
       expect(buttons.bindEvents).toBeDefined();
       expect(buttons.markSelected).toBeDefined();
       expect(buttons.markFocused).toBeDefined();
@@ -344,15 +334,15 @@ describe("selection-buttons", function () {
       it("Should mark the label of any checked checkboxes as selected", function () {
         var checkboxButtonsMock = {
               'markSelected' : GOVUK.CheckboxButtons.prototype.markSelected,
-              '$elms' : $radioButtons,
               'selectedClass' : 'selected'
             };
 
         $checkboxButtons.eq(0).attr('checked', true);
         spyOn(checkboxButtonsMock, 'markSelected').andCallThrough();
-        GOVUK.CheckboxButtons.prototype.setInitialState.call(checkboxButtonsMock);
+        GOVUK.CheckboxButtons.prototype.setInitialState.call(checkboxButtonsMock, $checkboxButtons);
         expect(checkboxButtonsMock.markSelected).toHaveBeenCalled();
         expect($checkboxButtons.eq(0).parent('label').hasClass('selected')).toBe(true);
+        $checkboxButtons.eq(0).attr('checked', false);
       });
     });
 
@@ -370,9 +360,7 @@ describe("selection-buttons", function () {
       var checkboxButtonsMock;
 
       beforeEach(function () {
-        checkboxButtonsMock = {
-          '$elms' : $checkboxButtons
-        };
+        checkboxButtonsMock = {};
       });
 
       it("Should bind a click event to each checkbox sent into the constructor", function () {
@@ -388,13 +376,14 @@ describe("selection-buttons", function () {
             eventCalled = true;
             callback = func;
           }
-          return $.fn;
+          return this;
         });
         $checkboxButtons.eq(0).attr('checked', true);
-        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock);
+        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock, $checkboxButtons);
         expect(eventCalled).toBe(true);
         callback({ 'target' : $checkboxButtons.eq(0) });
         expect(checkboxButtonsMock.markSelected).toHaveBeenCalled();
+        $checkboxButtons.eq(0).attr('checked', false);
       });
 
       it("Should bind focus and blur events to each checkbox sent into the constructor", function () {
@@ -410,9 +399,9 @@ describe("selection-buttons", function () {
             eventCalled = true;
             callback = func;
           }
-          return $.fn;
+          return this;
         });
-        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock);
+        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock, $checkboxButtons);
         expect(eventCalled).toBe(true);
         callback({
           'target' : $checkboxButtons.eq(0),
@@ -421,7 +410,7 @@ describe("selection-buttons", function () {
         expect(checkboxButtonsMock.markFocused).toHaveBeenCalled();
       });
 
-      it("Should bind a click event to the document if an element selector is present", function () {
+      it("Should bind a click event to the document if an element selector was sent into the constructor", function () {
         var eventCalled = false;
 
         checkboxButtonsMock.markSelected = function () {};
@@ -430,21 +419,22 @@ describe("selection-buttons", function () {
         checkboxButtonsMock.focusEvents = 'focus blur';
         checkboxButtonsMock.selector = 'label.selectable input[type="checkbox"]';
         spyOn(checkboxButtonsMock, 'markSelected');
-        spyOn($.fn, 'on').andCallFake(function (evt, func) {
-          if (evt === 'click') {
+        spyOn($.fn, 'on').andCallFake(function (evt, selector, func) {
+          if ((this[0] === document) && (evt === 'focus blur') && (selector === checkboxButtonsMock.selector)) {
             eventCalled = true;
             callback = func;
           }
-          return $.fn;
+          return this;
         });
         $checkboxButtons.eq(0).attr('checked', true);
-        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock);
+        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock, $checkboxButtons);
         expect(eventCalled).toBe(true);
         callback({ 'target' : $checkboxButtons.eq(0) });
         expect(checkboxButtonsMock.markSelected).toHaveBeenCalled();
+        $checkboxButtons.eq(0).attr('checked', false);
       });
 
-      it("Should bind focus and blur events to the document if an element selector is present", function () {
+      it("Should bind focus and blur events to the document if an element selector was sent into the constructor", function () {
         var eventCalled = false;
 
         checkboxButtonsMock.markFocused = function () {};
@@ -454,13 +444,13 @@ describe("selection-buttons", function () {
         checkboxButtonsMock.selector = 'label.selectable input[type="checkbox"]';
         spyOn(checkboxButtonsMock, 'markFocused');
         spyOn($.fn, 'on').andCallFake(function (evt, selector, func) {
-          if ((this === document) && (evt === 'focus blur') && (selector === checkboxButtonsMock.selector)) {
+          if ((this[0] === document) && (evt === 'focus blur') && (selector === checkboxButtonsMock.selector)) {
             eventCalled = true;
             callback = func;
           }
-          return $.fn;
+          return this;
         });
-        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock);
+        GOVUK.CheckboxButtons.prototype.bindEvents.call(checkboxButtonsMock, $checkboxButtons);
         expect(eventCalled).toBe(true);
         callback({
           'target' : $checkboxButtons.eq(0),
