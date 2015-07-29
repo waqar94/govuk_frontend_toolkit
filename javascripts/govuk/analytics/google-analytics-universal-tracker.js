@@ -45,6 +45,9 @@
         options = options || {},
         evt = {
           hitType: 'event',
+
+          // https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#transport
+          transport: 'beacon',
           eventCategory: category,
           eventAction: action
         };
