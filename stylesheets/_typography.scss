@@ -298,7 +298,19 @@ $is-print: false !default;
   }
 }
 
-@mixin external-link-heading {
+@mixin external-link-white {
+  &:after {
+    background-image: file-url("external-link-white-12x12.png");
+    background-repeat: no-repeat;
+
+    @include device-pixel-ratio() {
+      background-image: file-url("external-link-white-24x24.png");
+      background-size: 12px 400px;
+    }
+  }
+}
+
+@mixin external-link-black {
   &:after {
     background-image: file-url("external-links/external-link-black-12x12.png");
     background-repeat: no-repeat;
@@ -308,4 +320,9 @@ $is-print: false !default;
       background-size: 12px 400px;
     }
   }
+}
+
+@mixin external-link-heading {
+  @warn "The @mixin external-link-heading is deprecated, use `external-link-black`";
+  @include external-link-black;
 }

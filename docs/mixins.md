@@ -371,7 +371,9 @@ After setting the default, apply includes from the following for different font 
 * `external-link-19`
 * `external-link-19-no-hover`
 
-`external-link-heading` is a unique style a background image for headings to groups of external links.
+There are also alternatives to `external-link-default`:
+* `external-link-black` has a black icon with no hover variant. Use for headings to groups of external links.
+* `external-link-white` has a white icon, also with no hover variant.
 
 This uses the `file-url` helper which will by default output an `image-url` to
 be used with Compass or Rails Asset Pipeline, if you want to use a static path
